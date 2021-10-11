@@ -48,6 +48,49 @@ static const uint8_t M[16] = {2, 3, 1, 1, 1, 2, 3, 1, 1, 1, 2, 3, 3, 1, 1, 2};
 
 static const uint8_t IM[16] = {0x0e, 0x0b, 0x0d, 0x09, 0x09, 0x0e, 0x0b, 0x0d, 0x0d, 0x09, 0x0e, 0x0b, 0x0b, 0x0d, 0x09, 0x0e};
 
+// Left Rotation Word
+static uint32_t LRotWord(uint32_t word){
+  uint32_t rw = word & 0xFF;
+  word = (word >> 8) ^ (rw << 24);
+  return word;
+}
+
+// S-box를 활용하여 치환
+static uint32_t SubWord(uint32_t word){
+  uint32_t sw = 0;
+  uint8_t sb;
+  for(uint8_t i = 0; i < 4; i ++){
+    sb = sbox[(uint8_t)(word >> i*8) & 0xFF];
+    sw ^= (uint32_t)sb << i*8;
+  }
+  return sw;
+}
+
+/*
+ * Generate an AES key schedule
+ */
+void KeyExpansion(const uint8_t *key, uint32_t *roundKey)
+{
+  uint32_t temp;
+  uint8_t i;
+  for(i = 0; i < Nk; i++){
+    roundKey[i] = *((uint32_t*)&key[i*4]);
+    printf("%x\n",roundKey[i]);
+  }
+
+  for(i = Nk; i < RNDKEYSIZE; i++){
+    temp = roundKey[i-1];
+    if(i % Nk == 0){
+      temp = SubWord(LRotWord(temp)) ^ Rcon[i/Nk];
+    }
+    else if((Nk > 6) && (i % Nk == 4)) {
+      temp = SubWord(temp);
+    }
+    roundKey[i] = roundKey[i-Nk] ^ temp;
+  }
+}
+
+//XOR 연산을 이용해서 state와 key를 더한다.
 static void AddRoundKey(uint8_t *state, const uint32_t *roundKey)
 {
   uint32_t *p;
@@ -57,6 +100,7 @@ static void AddRoundKey(uint8_t *state, const uint32_t *roundKey)
   }
 }
 
+// mode에 따라 S-box를 이용하여 바이트를 치환한다.
 static void SubBytes(uint8_t *state, int mode)
 {
   for (int i=0;i<BLOCKLEN;i++){
@@ -67,9 +111,9 @@ static void SubBytes(uint8_t *state, int mode)
       *(state+i) = isbox[*(state+i)];
     }
   }
-  
 }
 
+// mode에 따라 바이트의 위치를 변경한다.
 static void ShiftRows(uint8_t *state, int mode)
 {
   uint8_t temp;
@@ -117,12 +161,13 @@ static void ShiftRows(uint8_t *state, int mode)
     }
 }
 
+//matrix곱과 GF(2^8)을 이용하여 컬럼을 섞는다.
 static void MixColumns(uint8_t *state, int mode)
 {
   uint8_t m, s, r;
   uint8_t temp[16];
   for(uint8_t i=0; i<BLOCKLEN; i++){
-    temp[i] = *(state+i);
+    *(temp+i) = *(state+i);
   }
   for(uint8_t i=0; i<Nb; i++){
     for(uint8_t j=0; j<Nb; j++){
@@ -143,19 +188,14 @@ static void MixColumns(uint8_t *state, int mode)
 }
 
 /*
- * Generate an AES key schedule
- */
-void KeyExpansion(const uint8_t *key, uint32_t *roundKey)
-{
-}
-
-/*
  * AES cipher function
  * If mode is nonzero, then do encryption, otherwise do decryption.
  */
 void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
 {
   uint32_t rk[4];
+
+  //initial XOR
   if (mode == 1)
     AddRoundKey(state,roundKey);
   else{
@@ -165,18 +205,16 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
     AddRoundKey(state,rk);
   }
 
+  //Round 1~9
   for (uint8_t i=1;i<Nr;i++){
-    
     SubBytes(state,mode);
     ShiftRows(state,mode);
-    if(mode == 1)
-    {
+    if(mode == 1){
       for (uint8_t j=0;j<Nk;j++){
         rk[j] = roundKey[4*i+j];
       }
     }
-    else
-    {
+    else{
       for (uint8_t j=0;j<Nk;j++){
         rk[j] = roundKey[4*(Nr-i)+j];
       }
@@ -184,7 +222,9 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
     }
     MixColumns(state,mode);
     AddRoundKey(state,rk);
+  }
 
+  //Round 10(Last)
   SubBytes(state,mode);
   ShiftRows(state,mode);
   if(mode == 1){
@@ -196,5 +236,5 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
   else{
     AddRoundKey(state,roundKey);
   }
-} 
+  
 }
