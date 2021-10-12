@@ -49,19 +49,21 @@ static const uint8_t M[16] = {2, 3, 1, 1, 1, 2, 3, 1, 1, 1, 2, 3, 3, 1, 1, 2};
 static const uint8_t IM[16] = {0x0e, 0x0b, 0x0d, 0x09, 0x09, 0x0e, 0x0b, 0x0d, 0x0d, 0x09, 0x0e, 0x0b, 0x0b, 0x0d, 0x09, 0x0e};
 
 // Left Rotation Word
-static uint32_t LRotWord(uint32_t word){
+static uint32_t LRotWord(uint32_t word)
+{
   uint32_t rw = word & 0xFF;
   word = (word >> 8) ^ (rw << 24);
   return word;
 }
 
 // S-box를 활용하여 치환
-static uint32_t SubWord(uint32_t word){
+static uint32_t SubWord(uint32_t word)
+{
   uint32_t sw = 0;
-  uint8_t sb;
+  uint8_t tmp;
   for(uint8_t i = 0; i < 4; i ++){
-    sb = sbox[(uint8_t)(word >> i*8) & 0xFF];
-    sw ^= (uint32_t)sb << i*8;
+    tmp = sbox[(uint8_t)(word >> i*8) & 0xFF];
+    sw ^= (uint32_t)tmp << i*8;
   }
   return sw;
 }
@@ -71,22 +73,21 @@ static uint32_t SubWord(uint32_t word){
  */
 void KeyExpansion(const uint8_t *key, uint32_t *roundKey)
 {
-  uint32_t temp;
+  uint32_t tmp;
   uint8_t i;
   for(i = 0; i < Nk; i++){
     roundKey[i] = *((uint32_t*)&key[i*4]);
-    printf("%x\n",roundKey[i]);
   }
 
   for(i = Nk; i < RNDKEYSIZE; i++){
-    temp = roundKey[i-1];
+    tmp = roundKey[i-1];
     if(i % Nk == 0){
-      temp = SubWord(LRotWord(temp)) ^ Rcon[i/Nk];
+      tmp = SubWord(LRotWord(tmp)) ^ Rcon[i/Nk];
     }
     else if((Nk > 6) && (i % Nk == 4)) {
-      temp = SubWord(temp);
+      tmp = SubWord(tmp);
     }
-    roundKey[i] = roundKey[i-Nk] ^ temp;
+    roundKey[i] = roundKey[i-Nk] ^ tmp;
   }
 }
 
@@ -104,7 +105,7 @@ static void AddRoundKey(uint8_t *state, const uint32_t *roundKey)
 static void SubBytes(uint8_t *state, int mode)
 {
   for (int i=0;i<BLOCKLEN;i++){
-    if (mode == 1){
+    if (mode == ENCRYPT){
       *(state+i) = sbox[*(state+i)];
     }
     else{
@@ -116,48 +117,48 @@ static void SubBytes(uint8_t *state, int mode)
 // mode에 따라 바이트의 위치를 변경한다.
 static void ShiftRows(uint8_t *state, int mode)
 {
-  uint8_t temp;
-    if(mode == 1){
+  uint8_t tmp;
+    if(mode == ENCRYPT){
     // row1
-    temp        = *(state+1);
+    tmp        = *(state+1);
     *(state+1)  = *(state+5);
     *(state+5)  = *(state+9);
     *(state+9)  = *(state+13);
-    *(state+13) = temp;
+    *(state+13) = tmp;
     // row2
-    temp        = *(state+2);
+    tmp        = *(state+2);
     *(state+2)  = *(state+10);
-    *(state+10) = temp;
-    temp        = *(state+6);
+    *(state+10) = tmp;
+    tmp        = *(state+6);
     *(state+6)  = *(state+14);
-    *(state+14) = temp;
+    *(state+14) = tmp;
     // row3
-    temp        = *(state+15);
+    tmp        = *(state+15);
     *(state+15) = *(state+11);
     *(state+11) = *(state+7);
     *(state+7)  = *(state+3);
-    *(state+3)  = temp;
+    *(state+3)  = tmp;
     }
     else{
     // row1
-    temp        = *(state+13);
+    tmp        = *(state+13);
     *(state+13) = *(state+9);
     *(state+9)  = *(state+5);
     *(state+5)  = *(state+1);
-    *(state+1)  = temp;
+    *(state+1)  = tmp;
     // row2
-    temp        = *(state+14);
+    tmp        = *(state+14);
     *(state+14) = *(state+6);
-    *(state+6)  = temp;
-    temp        = *(state+10);
+    *(state+6)  = tmp;
+    tmp        = *(state+10);
     *(state+10) = *(state+2);
-    *(state+2)  = temp;
+    *(state+2)  = tmp;
     // row3
-    temp        = *(state+3);
+    tmp        = *(state+3);
     *(state+3)  = *(state+7);
     *(state+7)  = *(state+11);
     *(state+11) = *(state+15);
-    *(state+15) = temp;
+    *(state+15) = tmp;
     }
 }
 
@@ -165,16 +166,16 @@ static void ShiftRows(uint8_t *state, int mode)
 static void MixColumns(uint8_t *state, int mode)
 {
   uint8_t m, s, r;
-  uint8_t temp[16];
+  uint8_t tmp[16];
   for(uint8_t i=0; i<BLOCKLEN; i++){
-    *(temp+i) = *(state+i);
+    *(tmp+i) = *(state+i);
   }
   for(uint8_t i=0; i<Nb; i++){
     for(uint8_t j=0; j<Nb; j++){
       r = 0;
       for(uint8_t k=0; k<Nb; k++){
-        s = temp[4*i+k];
-        if(mode == 1) m = M[4 * j + k];
+        s = tmp[4*i+k];
+        if(mode == ENCRYPT) m = M[4 * j + k];
         else m = IM[4 * j + k];
         while(m > 0){
           if(m & 1) r ^= s;
@@ -196,7 +197,7 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
   uint32_t rk[4];
 
   //initial XOR
-  if (mode == 1)
+  if (mode == ENCRYPT)
     AddRoundKey(state,roundKey);
   else{
     for(uint8_t j = 0; j < Nk; j++){
@@ -209,7 +210,7 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
   for (uint8_t i=1;i<Nr;i++){
     SubBytes(state,mode);
     ShiftRows(state,mode);
-    if(mode == 1){
+    if(mode == ENCRYPT){
       for (uint8_t j=0;j<Nk;j++){
         rk[j] = roundKey[4*i+j];
       }
@@ -227,7 +228,7 @@ void Cipher(uint8_t *state, const uint32_t *roundKey, int mode)
   //Round 10(Last)
   SubBytes(state,mode);
   ShiftRows(state,mode);
-  if(mode == 1){
+  if(mode == ENCRYPT){
     for(uint8_t j = 0; j < Nk; j++){
       rk[j] = roundKey[4*Nr+j];
     }
