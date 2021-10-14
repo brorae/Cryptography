@@ -51,8 +51,17 @@ static const uint8_t IM[16] = {0x0e, 0x0b, 0x0d, 0x09, 0x09, 0x0e, 0x0b, 0x0d, 0
 // Left Rotation Word
 static uint32_t LRotWord(uint32_t word)
 {
-  uint32_t rw = word & 0xFF;
-  word = (word >> 8) ^ (rw << 24);
+  // uint32_t rw = word & 0xFF;
+  // word = (word >> 8) ^ (rw << 24);
+  // return word;
+  uint8_t *p, tmp;
+
+  p = (uint8_t *)&word;
+  tmp = p[0];
+  p[0] = p[1];
+  p[1] = p[2];
+  p[3] = p[3];
+  p[3] = tmp;
   return word;
 }
 
@@ -74,11 +83,11 @@ static uint32_t SubWord(uint32_t word)
 void KeyExpansion(const uint8_t *key, uint32_t *roundKey)
 {
   uint32_t tmp;
-  uint8_t i;
-  for(i = 0; i < Nk; i++){
-    roundKey[i] = *((uint32_t*)&key[i*4]);
-  }
-
+  int i;
+  // for(i = 0; i < Nk; i++){
+  //   roundKey[i] = *((uint32_t*)&key[i*4]);
+  // }
+  memcpy(roundKey, key, KEYLEN);
   for(i = Nk; i < RNDKEYSIZE; i++){
     tmp = roundKey[i-1];
     if(i % Nk == 0){
