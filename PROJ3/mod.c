@@ -14,8 +14,8 @@ uint64_t mod_add(uint64_t a, uint64_t b, uint64_t m)
 {
     a = a % m;
     b = b % m;
-    if (a+b < b) b = b - m;
-    return (a + b) % m;
+    if(a + b < b) return ((a % m) + (b % m) - m) % m;
+    return ((a % m) + (b % m)) % m;
 }
 
 /*
@@ -24,8 +24,10 @@ uint64_t mod_add(uint64_t a, uint64_t b, uint64_t m)
  */
 uint64_t mod_sub(uint64_t a, uint64_t b, uint64_t m)
 {
-    if (a < b) return ((a%m) - (b%m) + m) % m;
-    return ((a%m) - (b%m)) % m;
+    a = a % m;
+    b = b % m;
+    if(a < b) return ((a % m) - (b % m) + m) % m;
+    return ((a % m) - (b % m)) % m;
 }
 
 /*
