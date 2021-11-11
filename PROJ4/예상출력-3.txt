@@ -1,0 +1,47 @@
+e = 0046d2244b897157
+d = 0e1acf6ef7dc0ff3
+n = bc20fc1dc739f48d
+m = 0, c = 0, v = 0
+m = 1, c = 1, v = 1
+m = 2, c = 6004572163847417257, v = 2
+m = 3, c = 3757063898132467200, v = 3
+m = 4, c = 9144462958860250489, v = 4
+m = 5, c = 12287818968475451667, v = 5
+m = 6, c = 3070539973666583686, v = 6
+m = 7, c = 10959010817300353776, v = 7
+m = 8, c = 6452322850085463685, v = 8
+m = 9, c = 9411342516886361266, v = 9
+m = 10, c = 5186279448485011029, v = 10
+m = 11, c = 11574700818087620992, v = 11
+m = 12, c = 8107861539915693953, v = 12
+m = 13, c = 594584125168063760, v = 13
+m = 14, c = 3128181284350147512, v = 14
+m = 15, c = 3371519509299913898, v = 15
+m = 16, c = 5961878579783357474, v = 16
+m = 17, c = 11042383787297821911, v = 17
+m = 18, c = 5366742573688479464, v = 18
+m = 19, c = 3745600005095303281, v = 19
+e = 065f1399584d3c0b
+d = 3f6730aa03016a57
+n = 8726fbf3c87a2637
+m = ffdfc6b68861ef67, m may be too big
+m = 7000910eb68436e8, c = 4accfce52d731322, v = 7000910eb68436e8
+m = 9244804b497c5d0d, m may be too big
+m = b97c040e58bda8de, m may be too big
+m = 7151c9ad35b539d6, c = 7fb0cd4de46e5099, v = 7151c9ad35b539d6
+m = b2c5af21ecb88424, m may be too big
+m = 874e6925787c02fd, m may be too big
+m = 59b9b26cf1f43c82, c = 83f7df7e4f60db59, v = 59b9b26cf1f43c82
+m = 4dbc706fd9bf9fd6, c = 0364020a53c60653, v = 4dbc706fd9bf9fd6
+m = 029e0ce9adaa4c29, c = 7d72e8df740ab9d3, v = 029e0ce9adaa4c29
+m = 3f1a961223ba769f, c = 5112779a1c69281f, v = 3f1a961223ba769f
+m = 1bd7da302ee35745, c = 4823eb798363f6be, v = 1bd7da302ee35745
+m = 6d645462f24a9040, c = 641651f6a5b40845, v = 6d645462f24a9040
+m = 0cc4273de288782b, c = 5ed9f68221dafc59, v = 0cc4273de288782b
+m = b86aada212fd5d52, m may be too big
+m = 7cdd500b8328cea9, c = 7651f4684311b564, v = 7cdd500b8328cea9
+m = 9578c73d94aa08fe, m may be too big
+m = 790a903354dba5a3, c = 20f1d357dc2068a3, v = 790a903354dba5a3
+m = ef42e9850a309f9f, m may be too big
+m = 00db014fcec2dada, c = 31a5029fccd65580, v = 00db014fcec2dada
+Random testing.................No error found

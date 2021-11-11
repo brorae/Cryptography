@@ -1,0 +1,47 @@
+e = 0920d80e6bf6aba9
+d = 13305b9c0c3d8e2d
+n = 8840e0e5ff6a2e03
+m = 0, c = 0, v = 0
+m = 1, c = 1, v = 1
+m = 2, c = 8004390784019109702, v = 2
+m = 3, c = 468232986679675997, v = 3
+m = 4, c = 3311388074825270222, v = 4
+m = 5, c = 6594805633986757349, v = 5
+m = 6, c = 5737403068380517965, v = 6
+m = 7, c = 7056195009435159532, v = 7
+m = 8, c = 1613943736362295346, v = 8
+m = 9, c = 3542466624471036465, v = 9
+m = 10, c = 1299928943591962826, v = 10
+m = 11, c = 2243216290285887398, v = 11
+m = 12, c = 8875241499048997836, v = 12
+m = 13, c = 1212796739109742327, v = 13
+m = 14, c = 8785062542587990112, v = 14
+m = 15, c = 4049493835006413835, v = 15
+m = 16, c = 6097492214241374957, v = 16
+m = 17, c = 6776143175630977184, v = 17
+m = 18, c = 3859457367935474404, v = 18
+m = 19, c = 4793040401094649439, v = 19
+e = 046c78ae38c1b047
+d = 013fb89bd01b703b
+n = a3ed71cab4543cf9
+m = 88688382a5c83424, c = 049423e8104f327f, v = 88688382a5c83424
+m = 6f7324af62594556, c = 3189b7e206d85e76, v = 6f7324af62594556
+m = d7be414edaa6f058, m may be too big
+m = 3caa98395681babb, c = 6968a22a4871ba83, v = 3caa98395681babb
+m = af2963c523b45be6, m may be too big
+m = ef5837cd379a9c99, m may be too big
+m = 649b7f21a4b7f0fa, c = 4900373f46f524e6, v = 649b7f21a4b7f0fa
+m = 20cfebc4b38284cc, c = 8588c92ed4368e64, v = 20cfebc4b38284cc
+m = c653c59279dd19e6, m may be too big
+m = 6e13ada214548fe3, c = 5a9210012de16868, v = 6e13ada214548fe3
+m = f695f65d33bfacfe, m may be too big
+m = fbe8a42fd276874c, m may be too big
+m = 49aca921efe9b8c6, c = 3333f1d8364d787c, v = 49aca921efe9b8c6
+m = 8b83238c8ba95001, c = 609a4f5f173cf25a, v = 8b83238c8ba95001
+m = f71c78c880f19862, m may be too big
+m = f0e6c6d588773737, m may be too big
+m = 0dec3c5580961909, c = 83b0b82815a8a120, v = 0dec3c5580961909
+m = f598a101bd2847dc, m may be too big
+m = 982c73eafcf11b82, c = 6cca4f31b63374f3, v = 982c73eafcf11b82
+m = eb32ffd300695069, m may be too big
+Random testing................No error found!
