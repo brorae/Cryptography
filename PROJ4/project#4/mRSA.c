@@ -16,20 +16,11 @@ static uint64_t gcd(uint64_t a, uint64_t b)
     return a;
 }
 
-static uint64_t mod_sub(uint64_t a, uint64_t b, uint64_t m)
-{
-    a = a % m;
-    b = b % m;
-    if(a < b) return ((a % m) - (b % m) + m) % m;
-    return ((a % m) - (b % m)) % m;
-}
-
 static uint64_t mod_add(uint64_t a, uint64_t b, uint64_t m)
 {
     a = a % m;
     b = b % m;
-    if(a + b < b) return ((a % m) + (b % m) - m) % m;
-    return ((a % m) + (b % m)) % m;
+    return (a >= (m-b) ? a-(m-b) : a + b); // (a + b) >= m ? a + b - m : a + b)
 }
 
 static uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t m)
@@ -48,23 +39,27 @@ static uint64_t mul_inv(uint64_t a, uint64_t m)
 {
     uint64_t d0 = a, d1 = m;
     uint64_t x0 = 1, x1 = 0;
-    uint64_t q = 0, tmp;
+    uint64_t q, tmp;
+    int sign = -1;
 
-    while(d1 > 1){
+    while (d1 > 1)
+    {
         q = d0 / d1;
 
-        tmp = mod_sub(d0 ,mod_mul(q, d1, m), m);
+        tmp = d0 - q * d1;
         d0 = d1;
         d1 = tmp;
 
-        tmp = mod_sub(x0, mod_mul(q, x1, m), m);
+        tmp = x0 + q * x1;
         x0 = x1;
         x1 = tmp;
-    }
 
-    if(d1 == 1) return (x1 > 0 ? x1 : x1 + m);
-    
-    return 0;
+        sign = ~sign; //x1값이 while문을 돌 때마다 부호가 바뀜 unsign int를 고려함.
+    }
+    if (d1 == 1)
+        return (sign ? m - x1 : x1); // sign변수를 통해 부호 결정
+    else
+        return 0;
 }
 
 static uint64_t mod_pow(uint64_t a, uint64_t b, uint64_t m)
@@ -79,36 +74,39 @@ static uint64_t mod_pow(uint64_t a, uint64_t b, uint64_t m)
     return r;
 }
 
+
 static int miller_rabin(uint64_t n)
 {
     uint64_t a[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
-    uint64_t i, j, q, k, l, flg;
+    uint64_t q, k, tmp, isPrime;
 
-    for(i = 0; i < 12; i++){
-        if(n == a[i]) return PRIME;
+    if (n <= 37){    
+        for(int i = 0; i < 12; i++){
+            if(n == a[i]) return PRIME;
+        }
     }
 
     q = (n - 1);
     k = 0;
 
-    while(k % 2 == 0){
+    while(q % 2 == 0){
         q = q / 2;
-        k = k + 1;
+        k++;
     }
 
-    for(i = 0; i < 12; i++){
-        flg = COMPOSITE;
-        if(mod_pow(a[i], q, n) == 1) flg = PRIME;
-        l = 1;
-        for(j = 0; j < k; j++){
-            if(mod_pow(mod_pow(a[i], q, n),l, n) == n-1){
-                flg = PRIME;
+    for(int i = 0; i < 12; i++){
+        isPrime = COMPOSITE;
+        if(mod_pow(a[i], q, n) == 1) isPrime = PRIME;
+        else{
+            for(int j = 0; j < k; j++){
+                if(j==0) tmp = mod_pow(a[i],q,n);
+                else tmp = mod_mul(tmp,tmp,n);
+                if(tmp == n-1) isPrime = PRIME;
             }
-            l *= 2;
         }
-        if(flg == COMPOSITE) return COMPOSITE;
+        if(isPrime == COMPOSITE) return COMPOSITE;
     }
-    return flg;
+    return isPrime;
 }
 
 /*
@@ -117,39 +115,31 @@ static int miller_rabin(uint64_t n)
  */
 void mRSA_generate_key(uint64_t *e, uint64_t *d, uint64_t *n)
 {
-    uint64_t p = 0;
-    uint64_t q = 0;
-    uint64_t Lambda = 0;
+    uint64_t p, q, tmp=0, bit=1;
+    uint64_t lambda = 0;
 
-    while (p * q < MINIMUM_N) // p, q 랜덤 선택
+    bit = (bit<<31) + 1;
+
+    while (tmp < MINIMUM_N) // p, q 랜덤 선택
     {
-        while (1)
-        {
-            arc4random_buf(&p, sizeof(uint32_t));
-            if (p%2==0) continue;
-            if (miller_rabin(p)) break;
-        }
+        do{
+            p =  bit | arc4random();
+        } while (miller_rabin(p)==COMPOSITE);
 
-        while (1)
-        {
-            arc4random_buf(&q, sizeof(uint32_t));
-            if (q%2==0) continue;
-            if (miller_rabin(q)) break;
-        }
+        do{
+            q =  bit |arc4random();
+        } while (miller_rabin(q)==COMPOSITE);
+        
+        tmp = p * q;
     }
-    *n = p * q; // n 생성
-    Lambda = (p-1)*(q-1)/gcd(p-1,q-1);
+    *n = tmp; // n 생성
+    lambda = (p-1)*(q-1)/gcd(p-1,q-1);
 
-    while (1) // e, d 생성
-    {
-        arc4random_buf(e,sizeof(uint64_t));
-        if ((1 < *e) && (*e < Lambda) && (gcd(*e,Lambda) == 1))
-        {
-            *d = mul_inv(*e,Lambda);
-            break;
-        }   
-    }
-    
+    do{
+        tmp = arc4random_uniform(lambda);
+    } while (gcd(tmp,lambda) != 1 || tmp <=1); // e, d 생성
+    *e = tmp;
+    *d = mul_inv(*e,lambda);
 }
 
 /*

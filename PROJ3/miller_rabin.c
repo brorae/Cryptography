@@ -23,7 +23,7 @@ const uint64_t a[ALEN] = {2,3,5,7,11,13,17,19,23,29,31,37};
  */
 int miller_rabin(uint64_t n)
 {
-    uint64_t k,q;
+    uint64_t k,q,isPrime;
     if (n<=37){
         for (int i=0;i<ALEN;i++){
             if (n == a[i]) return PRIME;
@@ -31,20 +31,20 @@ int miller_rabin(uint64_t n)
     }
     q = n-1;
     k = 0;
-    while(k%2 == 0){
+    while(q%2 == 0){
         q /= 2;
-        k += 1;
+        k ++;
     }
-    int ans;
-    for (int i=0;i<ALEN;i++){
-        ans = COMPOSITE;
-        if (mod_pow(a[i],q,n) == 1) ans = PRIME;
-        int l=1;
-        for (uint64_t j=0;j<k;j++){
-            if (mod_pow(mod_pow(a[i],q,n),l,n) == n-1) ans = PRIME;
-            l *= 2;
+    for(int i=0;i<ALEN;i++){
+        isPrime = COMPOSITE;
+        if(mod_pow(a[i], q, n) == 1) isPrime = PRIME;
+        else{
+            for(int j = 0; j < k; j++){
+                if(j==0) tmp = mod_pow(a[i],q,n);
+                else tmp = mod_mul(tmp,tmp,n);
+                if(tmp == n-1) isPrime = PRIME;
+            }
         }
-        if(ans == COMPOSITE) return COMPOSITE;
+        if(isPrime == COMPOSITE) return COMPOSITE;
     }
-    return ans;
-}
+    return isPrime;
