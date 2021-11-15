@@ -24,8 +24,10 @@ const uint64_t a[ALEN] = {2,3,5,7,11,13,17,19,23,29,31,37};
 int miller_rabin(uint64_t n)
 {
     uint64_t k,q;
-    for (int i=0;i<ALEN;i++){
-        if (n == a[i]) return PRIME;
+    if (n<=37){
+        for (int i=0;i<ALEN;i++){
+            if (n == a[i]) return PRIME;
+        }
     }
     q = n-1;
     k = 0;
